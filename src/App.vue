@@ -9,16 +9,45 @@
         <h1 class="text-danger">PEOPLE</h1>
       </div>
 
-      <div class="row">
+      <!-- <div class="row">
         <div class="col-lg-6">
           <h2 class="text-danger">Lista de pessoas</h2>
         </div>
         <div class="col-lg-6">
-          <button class="btn btn-danger"><span class="fa fa-plus"> Adicionar Perfil</span></button>
+          <button
+            class="btn btn-danger"
+          >
+            <span class="fa fa-plus"> Adicionar Perfil</span>
+          </button>
         </div>
-      </div>
+      </div> -->
 
-      <table class="table table-striped table-borderless table-sm">
+      <form @submit.prevent="save">
+        <div class="form-group">
+          <label>Nome</label>
+          <input
+            type="text"
+            placeholder="Nome"
+            v-model="person.name"
+            class="form-control"
+            required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input 
+            type="email"
+            placeholder="Email"
+            v-model="person.email"
+            class="form-control"
+            required>
+        </div>
+
+        <button class="btn btn-danger">
+          Salvar <span class="fa fa-send"></span>
+        </button>
+      </form>
+
+      <table class="table table-borderless table-striped table-sm">
         <tr v-for="person of people" :key="person.id">
           <td>
             {{person.name}}
@@ -27,14 +56,13 @@
             {{person.email}}
           </td>
           <td>
-            <button class="btn btn-outline-danger">
-              <span class="fa fa-edit"></span>
-            </button>
+            <button
+              class="btn text-danger fa fa-edit"
+              @click="edit(person)"
+            ></button>
           </td>
           <td>
-            <button class="btn btn-outline-danger">
-              <span class="fa fa-trash"></span>
-            </button>
+            <button class="btn text-danger fa fa-trash"></button>
           </td>
         </tr>
       </table>
@@ -46,19 +74,60 @@
 
 import Person from './services/person'
 
+var showForm = false
+
+function addPeople() {
+  this.showForm = true
+}
+
 export default {
 
   data() {
     return {
-      people: []
+      person: {
+        id: '',
+        name: '',
+        email: ''
+      },
+
+      people: [],
+      errors: []
     }
   },
   
   mounted () {
-    Person.list().then(response => {
-      // console.log(response.data)
-      this.people = response.data
-    })
+    this.list()
+  },
+
+  methods:{
+    list() {
+      Person.list().then(response => {
+        this.people = response.data
+      })
+    },
+
+    save() {
+
+      if(!this.person.id) {
+
+        Person.save(this.person).then(response => {
+          this.person = {}
+          alert('Salvo com sucesso!')
+          this.list()
+        })
+      } else {
+        Person.update(this.person).then(response => {
+          this.person = {}
+          alert('Atualizado com sucesso!')
+          this.list()
+        })
+      }
+      
+    },
+
+    edit(person) {
+      this.person = person
+    }
   }
 
 }
