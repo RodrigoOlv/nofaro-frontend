@@ -4,25 +4,29 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
     <div class="container">
-      <div class="d-flex flex-column justify-content-center">
-        <span class="lg fa fa-group "></span>
+      <header>
+        <span class="h1 text-danger fa fa-group "></span>
         <h1 class="text-danger">PEOPLE</h1>
-      </div>
+      </header>
 
-      <!-- <div class="row">
-        <div class="col-lg-6">
+      <div class="row justify-content-between">
+        <div class="col-md-4">
           <h2 class="text-danger">Lista de pessoas</h2>
         </div>
-        <div class="col-lg-6">
+        <div class="col-md-2 offset-md-6">
           <button
             class="btn btn-danger"
+            @click="addPeople()"
           >
             <span class="fa fa-plus"> Adicionar Perfil</span>
           </button>
         </div>
-      </div> -->
+      </div>
 
-      <form @submit.prevent="save">
+      <form
+        @submit.prevent="save"
+        v-if="this.showForm"
+      >
         <div class="form-group">
           <label>Nome</label>
           <input
@@ -42,30 +46,38 @@
             required>
         </div>
 
-        <button class="btn btn-danger">
+        <button
+          class="btn btn-danger"
+          @click="hideForm()"
+        >
           Salvar <span class="fa fa-send"></span>
         </button>
       </form>
 
-      <table class="table table-borderless table-striped table-sm">
-        <tr v-for="person of people" :key="person.id">
-          <td>
-            {{person.name}}
-          </td>
-          <td>
-            {{person.email}}
-          </td>
-          <td>
-            <button
-              class="btn text-danger fa fa-edit"
-              @click="edit(person)"
-            ></button>
-          </td>
-          <td>
-            <button class="btn text-danger fa fa-trash"></button>
-          </td>
-        </tr>
-      </table>
+      <div class="border border-danger rounded rounded-lg">
+        <table class="table table-borderless table-striped table-sm">
+          <tr v-for="person of people" :key="person.id">
+            <td>
+              {{person.name}}
+            </td>
+            <td>
+              {{person.email}}
+            </td>
+            <td>
+              <button
+                class="btn text-danger fa fa-edit"
+                @click="edit(person)"
+              ></button>
+            </td>
+            <td>
+              <button
+                class="btn text-danger fa fa-trash"
+                @click="remove(person)"
+              ></button>
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -73,12 +85,6 @@
 <script>
 
 import Person from './services/person'
-
-var showForm = false
-
-function addPeople() {
-  this.showForm = true
-}
 
 export default {
 
@@ -91,7 +97,9 @@ export default {
       },
 
       people: [],
-      errors: []
+      errors: [],
+
+      showForm: Boolean = false
     }
   },
   
@@ -102,6 +110,12 @@ export default {
   methods:{
     list() {
       Person.list().then(response => {
+        // this.people = response.data
+        // this.people.sort((t1, t2) => {
+        //   t1 === t1.name.charAt(0).toUpperCase() + t1.name.slice(1)
+        //   t2 === t2.name.charAt(0).toUpperCase() + t2.name.slice(1)
+        //   t1 < t2 ? -1 : 1
+        // })
         this.people = response.data
       })
     },
@@ -127,6 +141,28 @@ export default {
 
     edit(person) {
       this.person = person
+    },
+
+    remove(person) {
+
+      if(confirm('Tem certeza que você deseja excluir esse perfil?')) {
+
+        Person.delete(person).then(response => {
+          this.list();
+          this.errors = []
+        }).catch(e => {
+          this.errors = e.response.data.errors
+        })
+      }
+      
+    },
+    
+    addPeople() {
+      this.showForm = true
+    },
+
+    hideForm() {
+      this.showForm = false
     }
   }
 
@@ -136,8 +172,25 @@ export default {
 
 <style scoped>
 
-  .list {
+  body {
+    font-family: Helvetica, Arial, sans-serif
+  }
+
+  header {
+    margin: 15px auto;
+    text-align: center;
+  }
+
+  form {
     margin: 20px auto;
+  }
+
+  div.border {
+    margin: 30px auto;
+  }
+
+  table {
+    margin: 30px;
   }
 
 </style>
