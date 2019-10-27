@@ -87,7 +87,7 @@
 import Person from './services/person'
 
 export default {
-
+    name: 'list',
   data() {
     return {
       person: {
@@ -110,12 +110,6 @@ export default {
   methods:{
     list() {
       Person.list().then(response => {
-        // this.people = response.data
-        // this.people.sort((t1, t2) => {
-        //   t1 === t1.name.charAt(0).toUpperCase() + t1.name.slice(1)
-        //   t2 === t2.name.charAt(0).toUpperCase() + t2.name.slice(1)
-        //   t1 < t2 ? -1 : 1
-        // })
         this.people = response.data
       })
     },
